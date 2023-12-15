@@ -1,0 +1,115 @@
+body {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    background-image: url(./wes-hicks-MEL-jJnm7RQ-unsplash.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: auto;
+    max-width: 100%;
+    background-color: burlywood;
+}
+
+h1 {
+    font-size: 4rem;
+    color: white;
+    background-color: brown;
+    padding: 1rem;
+    border-radius: 10px;
+    font-weight: bold;
+    width: fit-content;
+    margin: 2rem auto 0.5rem;
+}
+
+h2 {
+    color: navy;
+    background-color: lightblue;
+    border-radius: 10px;
+    padding: 0.5rem;
+}
+
+input {
+    height: 1.7rem;
+    width: 20rem;
+    display: block;
+    text-align: center;
+    font-size: 1.1rem;
+    border-radius: 10px;
+}
+
+button {
+    width: fit-content;
+    margin: 1rem auto 1rem;
+    display: block;
+    height: 1.5rem;
+    width: 5rem;
+    background-color: navy;
+    color: white;
+    border-radius: 10px;
+}
+
+#searchSection {
+    width: fit-content;
+    margin: 5rem auto 2rem;
+}
+
+#blocksContainer {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.box {
+    width: 40%;
+}
+
+.song {
+    display: flex;
+    background-color: lightblue;
+    padding: 0.5rem;
+    margin: 0.5rem;
+    border-radius: 10px;
+}
+
+h3 {
+    font-size: 1.1rem;
+    color: navy;
+}
+
+h4 {
+    display: inline;
+    color: navy;
+}
+
+.songText {
+    width: 75%;
+}
+
+.largeButton {
+    display: block;
+    width: 7rem;
+    height: 2rem;
+    display: inline;
+}
+
+#submit, #clear {
+    display: block;
+}
+
+#userPlaylistName {
+    margin: 1rem auto 0;
+}
+
+#submitContainer {
+    width: fit-content;
+    margin: 0 auto;
+}
+
+#submitBtn {
+    display: block;
+    margin: 0.5rem auto;
+}
+
+input:focus {
+    background-color: khaki;
+}
