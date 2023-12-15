@@ -16,7 +16,7 @@ const newSearchBtn = document.getElementById('newSearchButton');
 
 const testMode = false;
 const clientId = 'e68bafb5cea6442ab13d02840d1862cc'; //this is public information
-const redirectUrl = 'http://localhost:8000';
+const redirectUrl = 'https://gordonscott08.github.io/vanillaSpotify/'   //'http://localhost:8000';
 
 //Define user information
 let spotifyUserId = '';     //will be populated by getUserId
