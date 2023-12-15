@@ -6,11 +6,16 @@ const elRawResults = document.getElementById('raw_results');
 const elResultsDiv = document.getElementById('appendHere');
 const elLoginDiv = document.getElementById('appendLogin');
 const elBtnSubmitPlaylist = document.getElementById('submitPlaylistButton')
+const playlistParentDiv = document.getElementById('appendPlayListHere');
 const elEnteredPlaylistName = document.getElementById('userPlaylistName');
 const elBtnNewSearch = document.getElementById('newSearchButton');
-const testMode = false;
+const savedMsg = document.getElementById('savedMessage');
+const playlistSubmitBtn = document.getElementById('submitPlaylistButton');
+const userInput = document.getElementById('userPlaylistName');
+const newSearchBtn = document.getElementById('newSearchButton');
 
-const clientId = spotifyClientId;
+const testMode = false;
+const clientId = 'e68bafb5cea6442ab13d02840d1862cc'; //this is public information
 const redirectUrl = 'http://localhost:8000';
 
 //Define user information
@@ -428,39 +433,21 @@ function renderList(responseObj) {
     })
 }
 
-//handle the clear button
-function clearResponse() {
+//
+function handleClearSearch() {
     elResultsDiv.innerHTML = '';
     elInput.value = '';
     elInput.focus();
 }
 
-//handle Enter Key Press
 function enterKeyHandler(event) {
     if (event.key === 'Enter') {
         searchSpotify();
     }
 }
 
-//clear input field after search results.
-function clearInputs() {
-    elInput.value = '';
-}
-
-/*
-                <div class="song">
-                    <div class="songText">
-                        <h3>Song One</h3>
-                        <h4>Artist</h4>
-                        <h4>Album</h4>
-                    </div>
-                    <button class="addButton">Add</button>
-                </div>
-*/
-
 function handleAddClick(id, track, artist, album) {
     //alert(`ID: ${id}, track: ${track}, artist: ${artist}, album: ${album}`);
-    const playlistParentDiv = document.getElementById('appendPlayListHere');
     const mySongContainer = document.createElement('div');  //create the top level "song" div
         mySongContainer.className = 'song';
         mySongContainer.id = 'containerFor_' + id;    
@@ -498,11 +485,6 @@ function handleRemove(id) {
 }
 
 async function handlePlaylistSubmit() {
-    const savedMsg = document.getElementById('savedMessage');
-    const playlistSubmitBtn = document.getElementById('submitPlaylistButton');
-    const userInput = document.getElementById('userPlaylistName');
-    const newSearchBtn = document.getElementById('newSearchButton');
-
     //if the name of the playlist is blank, alert the user.
     if (!elEnteredPlaylistName.value) {
         alert('Please enter a name first.')
@@ -523,12 +505,23 @@ async function handlePlaylistSubmit() {
 }
 
 function handleNewSearch() {
-    alert('insert new search functionality')
+    spotifyUserId = '';
+    userPlaylistArr = [];
+    playlistId = '';
+    playlistParentDiv.innerHTML = '';
+    elResultsDiv.innerHTML = '';
+    elInput.value = '';
+    elEnteredPlaylistName.value = '';
+    elInput.focus();
+    savedMsg.style.display = 'none';
+    newSearchBtn.style.display = 'none';
+    playlistSubmitBtn.style.display = 'block';
+    userInput.style.display = 'block';
 }
 
-//add Events
+//add Event Listeners
 elBtnResults.addEventListener('click',searchSpotify);
-elBtnClear.addEventListener('click',clearResponse);
+elBtnClear.addEventListener('click',handleClearSearch);
 elInput.addEventListener('keypress',enterKeyHandler);
 elBtnSubmitPlaylist.addEventListener('click',handlePlaylistSubmit);
 elBtnNewSearch.addEventListener('click',handleNewSearch);
