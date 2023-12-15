@@ -4,9 +4,15 @@ const elBtnResults = document.getElementById('submit');
 const elBtnClear = document.getElementById('clear');
 const elRawResults = document.getElementById('raw_results');
 const elResultsDiv = document.getElementById('appendHere');
+const elLoginDiv = document.getElementById('appendLogin');
+const elBtnSubmitPlaylist = document.getElementById('submitPlaylistButton')
+const testMode = false;
 
 const clientId = spotifyClientId;
 const redirectUrl = 'http://localhost:8000';
+
+//Define an array of track ID's that the user has selected.
+let userPlaylistArr = [];
 
 //on page load look for and save current url parameters. If present, they are part of authentication.
 const params = new URLSearchParams(window.location.search);
@@ -47,22 +53,42 @@ async function handleLoad() {
         url.searchParams.delete("state");
         const updatedUrl = url.search ? url.href : url.href.replace('?', '');
         window.history.replaceState({}, document.title, updatedUrl);
-      } else {console.log('OK. No params.')};
-    //if there were no parameters in the url, but there is no token, we need to initiate the full user permission / authentication process.
-    if (!currentToken.access_token) {
-        alert('Hang tight while we connect you to Spotify to authenticate your account.')
-        redirectToSpotifyAuthorize();
+      } else {
+        console.log('OK. No params.')
+        //focus on search field
+        elInput.focus()
+    };
+    //if there were no parameters in the url, but there is no token, we need to initiate the full user login / authentication process.
+    if (!currentToken.access_token || testMode) {
+        console.log('Rendering login.')
+        renderLogin();
     } else {console.log('OK. Existing token detected.')};
 }
 //once the hard stuff is done set the focus on the user input.
-elInput.focus()
+
+function renderLogin() {
+    const loginButton = document.createElement('button');
+    loginButton.innerText = 'Login to Spotify';
+    loginButton.className = 'largeButton';
+    loginButton.onclick = handleLoginClick;
+    const removeDiv = document.getElementById('searchElementsContainer');
+    const alsoRemoveDiv = document.getElementById('submitContainer')
+    removeDiv.remove();
+    alsoRemoveDiv.remove();
+    const myParent = document.getElementById('searchSection');
+    myParent.appendChild(loginButton);
+}
+
+function handleLoginClick() {
+    redirectToSpotifyAuthorize();
+}
 
 async function redirectToSpotifyAuthorize() {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const randomValues = crypto.getRandomValues(new Uint8Array(64));
     const randomString = randomValues.reduce((acc, x) => acc + possible[x % possible.length], "");
     const authorizationEndpoint = "https://accounts.spotify.com/authorize";
-    const scope = 'playlist-modify-public playlist-modify-private user-top-read';
+    const scope = 'playlist-modify-public playlist-modify-private user-top-read user-read-email user-read-private';
     const randomState = Math.floor(Math.random()*1000000)
     localStorage.setItem("sentStateParam",randomState);
   
@@ -205,16 +231,7 @@ async function searchSpotify () {
     }
 }
 
-/*
-                <div class="song">
-                    <div class="songText">
-                        <h3>Song One</h3>
-                        <h4>Artist</h4>
-                        <h4>Album</h4>
-                    </div>
-                    <button class="addButton">Add</button>
-                </div>
-*/
+
 
 function renderList(responseObj) {
     const tracksArr = responseObj.tracks.items;
@@ -234,8 +251,12 @@ function renderList(responseObj) {
         myAlbum.innerText = element.album.name;
         const myAddButton = document.createElement('button');
         myAddButton.className = 'addButton';
-        myAddButton.id = element.id;
-        myAddButton.onclick = function() {handleAddClick(this.id)}
+        myAddButton.id = 'buttonFor_'+element.id;
+        myAddButton.setAttribute('trackId',element.id)
+        myAddButton.setAttribute('track',element.name);
+        myAddButton.setAttribute('artist',element.artists[0].name)
+        myAddButton.setAttribute('album',element.album.name)
+        myAddButton.onclick = function() {handleAddClick(this.getAttribute('trackId'), this.getAttribute('track'), this.getAttribute('artist'), this.getAttribute('album'))}
         myAddButton.innerText = 'Add'
         myTextContainer.appendChild(myh3);  //put the h3 element into the songText div
         myTextContainer.appendChild(myArtist);  //put the first h4 element into the songText div
@@ -245,16 +266,10 @@ function renderList(responseObj) {
         elementsArr.push(mySongContainer);
     });
 
-    console.log(elementsArr.length);
     elementsArr.forEach((element) => {
         elResultsDiv.appendChild(element);
     })
 }
-
-function addToPlayList(id) {}
-
-
-
 
 //handle the clear button
 function clearResponse() {
@@ -275,12 +290,77 @@ function clearInputs() {
     elInput.value = '';
 }
 
-function handleAddClick(id) {
-    alert(`Received click for ID: ${id}.`)
+/*
+                <div class="song">
+                    <div class="songText">
+                        <h3>Song One</h3>
+                        <h4>Artist</h4>
+                        <h4>Album</h4>
+                    </div>
+                    <button class="addButton">Add</button>
+                </div>
+*/
+
+function handleAddClick(id, track, artist, album) {
+    //alert(`ID: ${id}, track: ${track}, artist: ${artist}, album: ${album}`);
+    const playlistParentDiv = document.getElementById('appendPlayListHere');
+    const mySongContainer = document.createElement('div');  //create the top level "song" div
+        mySongContainer.className = 'song';
+        mySongContainer.id = 'containerFor_' + id;    
+        const myTextContainer = document.createElement('div'); //create the "songText" div
+        myTextContainer.className = 'songText';
+        const myh3 = document.createElement('h3');
+        myh3.innerText = track;
+        const myArtist = document.createElement('h4');
+        myArtist.innerText = artist;
+        const myAlbum = document.createElement('h4');
+        myAlbum.innerText = album;
+        const myAddButton = document.createElement('button');
+        myAddButton.setAttribute('trackId',id);
+        myAddButton.className = 'addButton';
+        myAddButton.id = 'removeBtnFor_'+id;
+        myAddButton.innerText = 'Remove';
+        myAddButton.onclick = function() {handleRemove(this.getAttribute('trackId'))}
+        myTextContainer.appendChild(myh3);  //put the h3 element into the songText div
+        myTextContainer.appendChild(myArtist);  //put the first h4 element into the songText div
+        myTextContainer.appendChild(myAlbum);   //put the second h4 element into the songText div
+        mySongContainer.appendChild(myTextContainer);   //append the SongText div to the top level div
+        mySongContainer.appendChild(myAddButton);   //append the button to the top level div
+        playlistParentDiv.appendChild(mySongContainer); //append the whole thing to the playlist div
+        userPlaylistArr.push(id);   //add the song to the user's playlist array
+        console.log(userPlaylistArr);
+}
+
+function handleRemove(id) {
+    const removedSongDiv = document.getElementById('containerFor_' + id);
+    console.log(removedSongDiv);
+    removedSongDiv.remove();
+    const updatedArr = userPlaylistArr.filter(item=>item !== id);
+    userPlaylistArr = updatedArr;
+    console.log(userPlaylistArr);
+}
+
+function handlePlaylistSubmit() {
+    const savedMsg = document.getElementById('savedMessage');
+    const playlistSubmitBtn = document.getElementById('submitPlaylistButton');
+    const userInput = document.getElementById('userPlaylistName');
+    const newSearchBtn = document.getElementById('newSearchButton');
+
+    savedMsg.style.display = 'block';
+    newSearchBtn.style.display = 'block';
+    playlistSubmitBtn.style.display = 'none';
+    userInput.style.display = 'none';
+
+}
+
+function handleNewSearch() {
+    alert('insert new search functionality')
 }
 
 //add Events
 elBtnResults.addEventListener('click',searchSpotify);
 elBtnClear.addEventListener('click',clearResponse);
 elInput.addEventListener('keypress',enterKeyHandler);
+elBtnSubmitPlaylist.addEventListener('click',handlePlaylistSubmit);
+newSearchButton.addEventListener('click',handleNewSearch);
 window.addEventListener('load',handleLoad);

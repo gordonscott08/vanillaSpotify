@@ -2,10 +2,10 @@ body {
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 1rem;
-    background-image: url(./wes-hicks-MEL-jJnm7RQ-unsplash.jpg);
+    background-image: url(./wes-hicks.jpg);
     background-position: center;
     background-repeat: no-repeat;
-    background-size: auto;
+    background-size: cover;
     max-width: 100%;
     background-color: burlywood;
 }
@@ -105,6 +105,10 @@ h4 {
     margin: 0 auto;
 }
 
+#submitContainer > * {
+    display: block;
+}
+
 #submitBtn {
     display: block;
     margin: 0.5rem auto;
@@ -112,4 +116,13 @@ h4 {
 
 input:focus {
     background-color: khaki;
+}
+
+span {
+    color: navy;
+    background-color: lightblue;
+    padding: 0.5rem;
+    border-radius: 10px;
+    width: fit-content;
+    margin: 0 auto;
 }

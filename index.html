@@ -14,24 +14,28 @@
     </header>
     <main>
         <section id="searchSection">
-            <input type="text" name="search" id="userInput" placeholder="Search for Songs!">
-            <div id="searchButtonContainer">
-            <button id="submit" class="largeButton">Search</button>
-            <button id="clear" class="largeButton">Clear</button>
+            <div id="searchElementsContainer">
+                <input type="text" name="search" id="userInput" placeholder="Search for Songs!">
+                <div id="searchButtonContainer">
+                    <button id="submit" class="largeButton">Search</button>
+                    <button id="clear" class="largeButton">Clear</button>
+                </div>
             </div>
+            <div id="appendLogin"></div>
         </section>
         <div id="blocksContainer" class="container">
             <section id="results" class="box">
                 <h2>Search Results</h2>
-                <div id="appendHere">
-                </div>
+                <div id="appendHere"></div>
             </section>    
             <section id="playlist" class="box">
-                <h2>Create PlayList</h2>
+                <h2>PlayList Creation</h2>
                 <div id="appendPlayListHere"></div>
                 <div id="submitContainer">
                     <input type="text" name="playlistName" id="userPlaylistName" placeholder="Playlist Name">
-                    <button id="submitBtn" class="largeButton">Save to Spotify</button>
+                    <button id="submitPlaylistButton" class="largeButton">Save to Spotify</button>
+                    <span style="display: none;" id="savedMessage">Playlist Saved</span>
+                    <button style="display: none;" id="newSearchButton" class="largeButton">New Search</button>
                 </div>
             </section>
         </div>
