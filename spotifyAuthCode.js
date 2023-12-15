@@ -6,12 +6,14 @@ const elRawResults = document.getElementById('raw_results');
 const elResultsDiv = document.getElementById('appendHere');
 const elLoginDiv = document.getElementById('appendLogin');
 const elBtnSubmitPlaylist = document.getElementById('submitPlaylistButton')
+const elEnteredPlaylistName = document.getElementById('userPlaylistName');
 const testMode = false;
 
 const clientId = spotifyClientId;
 const redirectUrl = 'http://localhost:8000';
 
-//Define an array of track ID's that the user has selected.
+//Define user information
+let spotifyUserId = '';
 let userPlaylistArr = [];
 
 //on page load look for and save current url parameters. If present, they are part of authentication.
@@ -227,7 +229,107 @@ async function searchSpotify () {
             }
         } else {console.log(`First endpoint request came back from Spotify with status ${response.status}.`)}
     } catch(networkError) {
-        console.log(`First endpoint request didn't make contact: ${networkError.message}.`);
+        console.log(`We hit a general error: ${networkError.message}.`);
+    }
+}
+
+
+async function getUserId() {
+    const baseUrl = 'https://api.spotify.com/v1';
+    const endpoint = '/me';
+    const extendedUrl = baseUrl + endpoint;
+    const clientCredential = currentToken.access_token;
+
+    try {
+        const response = await fetch(extendedUrl,{
+            method: 'GET',
+            headers: {
+                'Authorization' : 'Bearer ' + clientCredential
+            }
+        });
+        if (response.ok) {
+            console.log(`OK. Token accepted. Response ${response.status}.`)
+            const jsonResponse = await response.json();
+            spotifyUserId = jsonResponse.id;
+            console.log(jsonResponse);
+        //if the token is expired...generate a new token and try one more time.
+        } else if (response.status === 401) {
+            console.log(`Token is expired. Requesting new token...`);
+            try {
+                const newTokenResponse = await refreshToken();
+                console.log('Making second request to endpoint...');
+                try {
+                    const secondTryResponse = await fetch(extendedUrl,{
+                        method: 'GET',
+                        headers: {
+                            'Authorization' : 'Bearer ' + newTokenResponse.access_token
+                        }
+                    });
+                if (secondTryResponse.ok) {
+                    console.log(`Success: second endpoint attempt; response ${secondTryResponse.status}.`);
+                    const secondTryJson = await secondTryResponse.json();
+                    spotifyUserId = secondTryJson.id;
+                    console.log(secondTryJson);
+                } else {
+                    console.log(`Error on second endpoint request. Response ${response.status}`)
+                }
+                } catch(err) {console.log(`Second attempt at endpoint hit an error: ${err.message}`)}
+            } catch(tokenGenerationError) {
+                console.log(`New token generation hit an error: ${tokenGenerationError.message}.`)
+            }
+        } else {console.log(`First endpoint request came back from Spotify with status ${response.status}.`)}
+    } catch(networkError) {
+        console.log(`We hit a general error: ${networkError.message}.`);
+    }
+}
+
+async function postNewPlaylist (playlistName) {
+    const baseUrl = 'https://api.spotify.com/v1';
+    const endpoint = '/users/'+spotifyUserId+'/playlists';
+    const extendedUrl = baseUrl + endpoint;
+    const clientCredential = currentToken.access_token;
+    const requestBody = JSON.stringify({name: playlistName});
+
+    try {
+        const response = await fetch(extendedUrl,{
+            method: 'POST',
+            headers: {
+                'Authorization' : 'Bearer ' + clientCredential,
+                'Content-Type': 'application/json',
+            },
+            body: requestBody,
+        });
+        if (response.ok) {
+            console.log(`OK. Token accepted. Response ${response.status}.`)
+            const jsonResponse = await response.json();
+            console.log(jsonResponse);
+        //if the token is expired...generate a new token and try one more time.
+        } else if (response.status === 401) {
+            console.log(`Token is expired. Requesting new token...`);
+            try {
+                const newTokenResponse = await refreshToken();
+                console.log('Making second request to endpoint...');
+                try {
+                    const secondTryResponse = await fetch(extendedUrl,{
+                        method: 'GET',
+                        headers: {
+                            'Authorization' : 'Bearer ' + newTokenResponse.access_token
+                        }
+                    });
+                if (secondTryResponse.ok) {
+                    console.log(`Success: second endpoint attempt; response ${secondTryResponse.status}.`);
+                    const secondTryJson = await secondTryResponse.json();
+                    console.log(secondTryJson);
+                } else {
+                    console.log(`Error on second endpoint request. Response ${response.status}`)
+                }
+                } catch(err) {console.log(`Second attempt at endpoint hit an error: ${err.message}`)}
+            } catch(tokenGenerationError) {
+                console.log(`New token generation hit an error: ${tokenGenerationError.message}.`)
+            }
+        } else {console.log(`First endpoint request came back from Spotify with status ${response.status}.`)}
+    } catch(networkError) {
+        console.log(`We hit a general error: ${networkError.message}.`);
     }
 }
 
@@ -340,17 +442,28 @@ function handleRemove(id) {
     console.log(userPlaylistArr);
 }
 
-function handlePlaylistSubmit() {
+async function handlePlaylistSubmit() {
     const savedMsg = document.getElementById('savedMessage');
     const playlistSubmitBtn = document.getElementById('submitPlaylistButton');
     const userInput = document.getElementById('userPlaylistName');
     const newSearchBtn = document.getElementById('newSearchButton');
 
+    //if the name of the playlist is blank, alert the user.
+    if (!elEnteredPlaylistName.value) {
+        alert('Please enter a name first.')
+        elEnteredPlaylistName.focus();
+        return
+    }
+
+    console.log('OK. Requesting user ID.')
+    await getUserId();
+    console.log('Sending playlist name as: ' + elEnteredPlaylistName.value);
+    await postNewPlaylist(elEnteredPlaylistName.value);
+    
     savedMsg.style.display = 'block';
     newSearchBtn.style.display = 'block';
     playlistSubmitBtn.style.display = 'none';
     userInput.style.display = 'none';
-
 }
 
 function handleNewSearch() {
